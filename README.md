@@ -2,13 +2,16 @@
 web-vitals wrapped in Angular service
 
 # Quickstart
+Just install `web-vitals-ng` package in your Angular project, for example:
 ```bash
-npm install @web-vitals-ng/web-vitals-ng.service
+npm install web-vitals-ng
 ```
 
+Then you can use it as follows:
 ```typescript
 import { Component, OnInit } from '@angular/core';
-import { WebVitalsService } from '@web-vitals-ng/web-vitals-ng.service';
+import { Subscription } from 'rxjs';
+import { WebVitalsNgService } from 'web-vitals-ng';
 
 @Component({
   selector: 'app-web-vitals',
@@ -22,35 +25,42 @@ import { WebVitalsService } from '@web-vitals-ng/web-vitals-ng.service';
   `,
 })
 export class WebVitalsComponent implements OnInit {
-  clsData: number | null;
-  fidData: number | null;
-  lcpData: number | null;
+  clsData: number = -1;
+  fidData: number = -1;
+  lcpData: number = -1;
 
-  constructor(private webVitalsService: WebVitalsService) {}
+  clsSubscription: Subscription = new Subscription;
+  fidSubscription: Subscription = new Subscription;
+  lcpSubscription: Subscription = new Subscription;
+
+  constructor(private webVitalsNgService: WebVitalsNgService) {}
 
   ngOnInit(): void {
-    this.webVitalsService.detectCLS$.subscribe(({value}) => {
-        this.clsData = value.
+    this.webVitalsNgService.detectCLS$.subscribe((data) => {
+        this.clsData = data.value;
     });
 
-    this.webVitalsService.detectFID$.subscribe(({value}) => {
-        this.fidData = value.
+    this.webVitalsNgService.detectFID$.subscribe((data) => {
+        this.fidData = data.value;
     });
 
-    this.webVitalsService.detectLCP$.subscribe(({value}) => {
-        this.lcpData = value.
+    this.webVitalsNgService.detectLCP$.subscribe((data) => {
+        this.lcpData = data.value;
     });
   }
 
   ngOnDestroy() {
-    // Unsubscribe to prevent memory leaks
-    this.eventSubscription.unsubscribe();
+    this.clsSubscription.unsubscribe();
+    this.fidSubscription.unsubscribe();
+    this.lcpSubscription.unsubscribe();
   }  
 }
 ```
 
+# Development
+
 ## TODO
-* wrap web-vitals Metric into custom interfaces for proper decoupling (this will be breaking change!)
+* wrap web-vitals Metric interface into web-vitals-ng specific interfaces for proper decoupling (this mey be breaking change!)
 * add some e2e tests
 
 ## Build
